@@ -1,45 +1,36 @@
-# AUTO_API_PETSTORE_SCREENPLAY
+# Automatizacion API PetStore con Serenity BDD
 
-## Descripcion del proyecto
+## 1. Descripcion del Proyecto
 
-Proyecto de automatizacion de pruebas API construido con **Serenity BDD**, **Screenplay Pattern** y **Serenity Rest** para validar el ciclo completo CRUD de la API publica de PetStore:
+Este repositorio contiene una automatizacion de pruebas de API construida con **Serenity BDD**, **Serenity Rest** y el patron **Screenplay**. La solucion valida el ciclo CRUD completo de la API publica de PetStore:
 
 - `https://petstore.swagger.io`
 
-## Objetivo de la automatizacion
+El escenario E2E ejecuta en un solo flujo las operaciones de creacion, consulta, actualizacion y eliminacion de una mascota, incluyendo la verificacion final de eliminacion.
 
-Validar, en un flujo E2E de punta a punta, que la API de mascotas permite:
+## 2. Objetivo
 
-1. Crear una mascota (`POST`)
-2. Consultar la mascota creada (`GET`)
-3. Actualizar la mascota (`PUT`)
-4. Eliminar la mascota (`DELETE`)
-5. Confirmar que ya no existe (`GET` con respuesta esperada `404`)
+Validar la integridad y el comportamiento esperado de los servicios REST de PetStore mediante pruebas automatizadas, reduciendo riesgos de regresion y mejorando la confianza en los endpoints expuestos.
 
-## Tecnologias utilizadas
+## 3. Tecnologias Utilizadas
 
-- Java 16
-- Gradle (con `gradlew.bat` en el proyecto)
+- Java
 - Serenity BDD
-- Serenity Cucumber
-- Serenity Screenplay
-- Serenity Screenplay REST
-- Serenity Rest Assured
+- Serenity Rest
 - Cucumber
-- JUnit
+- Screenplay Pattern
+- Gradle o Maven
 
-## Arquitectura del proyecto (Screenplay Pattern)
+## 4. Arquitectura del Proyecto
 
-El proyecto sigue el patron Screenplay para separar responsabilidades y mejorar mantenibilidad:
+El proyecto usa el patron **Screenplay**, que organiza la automatizacion por responsabilidades y favorece la mantenibilidad:
 
-- **Tasks**: encapsulan acciones HTTP (crear, consultar, actualizar, eliminar).
-- **StepDefinitions**: orquestan el flujo funcional del escenario.
-- **Questions**: consultan resultados del sistema (por ejemplo, codigo de estado).
-- **Hooks**: preparan y limpian el contexto de ejecucion (actors y setup).
-- **Runners**: definen la configuracion de ejecucion Cucumber + Serenity.
-- **Util**: utilidades compartidas, como generacion dinamica de ID.
+- Los **actores** ejecutan acciones sobre el sistema.
+- Las **tasks** encapsulan interacciones de negocio (peticiones HTTP).
+- Las **questions** consultan resultados para validar comportamientos.
+- Los **step definitions** orquestan el flujo funcional del escenario.
 
-## Estructura del proyecto
+## 5. Estructura del Proyecto
 
 ```text
 automation
@@ -52,94 +43,68 @@ automation
  └── util
 ```
 
-Implementacion actual relevante:
+Descripcion de carpetas:
 
-- `src/test/java/automation/tasks/CreatePet.java`
-- `src/test/java/automation/tasks/GetPet.java`
-- `src/test/java/automation/tasks/UpdatePet.java`
-- `src/test/java/automation/tasks/DeletePet.java`
-- `src/test/java/automation/stepdefinitions/PetStoreStepDefinitions.java`
-- `src/test/java/automation/runners/PetStoreRunner.java`
-- `src/test/resources/features/petstore_crud.feature`
-- `src/test/resources/serenity.conf`
+- `hooks`: configuracion y ciclo de vida antes/despues de escenarios.
+- `questions`: consultas para validar estados y respuestas.
+- `runners`: clases de ejecucion (Cucumber con Serenity).
+- `stepdefinitions`: definicion de pasos Gherkin y orquestacion del flujo.
+- `tasks`: acciones reutilizables para consumir endpoints REST.
+- `ui`: espacio reservado para componentes UI (si aplica en el futuro).
+- `util`: utilidades compartidas (por ejemplo, generacion de datos dinamicos).
 
-## Explicacion del flujo CRUD automatizado
+## 6. Flujo de Prueba Automatizado
 
-El escenario automatizado ejecuta los siguientes pasos:
+El escenario automatizado ejecuta este flujo CRUD:
 
-1. **POST `/v2/pet`**
-   - Crea una mascota con ID dinamico generado con `ThreadLocalRandom`.
-   - Body usado:
+1. Crear mascota (`POST`)
+2. Consultar mascota (`GET`)
+3. Actualizar mascota (`PUT`)
+4. Eliminar mascota (`DELETE`)
+5. Verificar eliminacion (`GET`)
 
-```json
-{
-  "id": ID_GENERADO,
-  "name": "Firulais",
-  "status": "available"
-}
+## 7. Requisitos para ejecutar el proyecto
+
+- Java 11 o superior
+- Maven o Gradle instalado
+- Git
+
+> Nota: valida la version de Java configurada en el proyecto (`build.gradle` o `pom.xml`) para alinear el entorno local.
+
+## 8. Clonar el repositorio
+
+```bash
+git clone URL_DEL_REPOSITORIO
 ```
 
-2. **GET `/v2/pet/{id}`**
-   - Consulta la mascota creada por ID.
-   - Se espera `200` y nombre `Firulais`.
+## 9. Ejecutar las pruebas
 
-3. **PUT `/v2/pet`**
-   - Actualiza la mascota cambiando el nombre a `FirulaisActualizado`.
-   - Se espera `200` y nombre actualizado.
+Si usas **Gradle** (Linux/macOS):
 
-4. **DELETE `/v2/pet/{id}`**
-   - Elimina la mascota por ID.
-   - Se espera `200`.
+```bash
+./gradlew clean test
+```
 
-5. **GET `/v2/pet/{id}`**
-   - Consulta posterior a la eliminacion.
-   - Se espera `404` para confirmar eliminacion.
-
-## Requisitos
-
-- JDK 16 instalado y configurado en `JAVA_HOME`.
-- Acceso a internet (API publica de PetStore).
-- Gradle Wrapper incluido en el repositorio (`gradlew.bat`).
-
-> Nota: la version de Java declarada en `build.gradle` es 16 (`sourceCompatibility` y `targetCompatibility`).
-
-## Como ejecutar las pruebas
-
-Desde la raiz del proyecto en Windows (`cmd.exe`):
+Si usas **Gradle** en Windows:
 
 ```bat
-gradlew.bat clean test aggregate
+gradlew clean test
 ```
 
-Ejecucion puntual del runner (si aplica a tu entorno):
+Si usas **Maven**:
 
-```bat
-gradlew.bat test --tests automation.runners.PetStoreRunner
+```bash
+mvn clean verify
 ```
 
-## Ejemplo del flujo de prueba (Gherkin)
+## 10. Reportes de Serenity
 
-```gherkin
-Feature: CRUD PetStore API
+Serenity genera reportes automaticamente al finalizar la ejecucion de pruebas, incluyendo detalle de escenarios, pasos, resultados y evidencia de las llamadas realizadas.
 
-  Scenario: Ejecutar ciclo completo CRUD de mascota
-    Given que el usuario crea una mascota
-    When consulta la mascota creada
-    And actualiza la mascota
-    And elimina la mascota
-    Then valida que la mascota ya no existe
-```
-
-## Serenity Reports (explicacion breve)
-
-Serenity genera reportes HTML con evidencia detallada de la ejecucion:
-
-- Estado de escenarios (paso a paso)
-- Peticiones y respuestas HTTP
-- Tiempos y trazabilidad de ejecucion
-- Resumen general de resultados
-
-Ubicaciones comunes de salida:
+Ruta esperada del reporte:
 
 - `target/site/serenity/index.html`
-- `build/reports/` (segun configuracion de Gradle/Serenity)
+
+## 11. Autor
+
+- **Freddy Leonel**
